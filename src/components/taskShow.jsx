@@ -40,7 +40,7 @@ function TaskList({ taskProp, removeTask, editTask }) {
   return (
     <>
       <div className="p-2 m-1 border rounded bg-light">
-        <h6 className="mb-4 mt-2">Tasks <span className={`btn ${isPriority===false ? "btn-success" : "btn-secondary"} float-end `} onClick={handlePriority}>{isPriority===true ? "All Tasks" : "Get Priority"}</span></h6>
+        <h6 className="mb-4 mt-2">Tasks <button className={`btn ${isPriority===false ? "btn-success" : "btn-secondary"} float-end `} onClick={handlePriority}>{isPriority===true ? "All Tasks" : "Get Priority"}</button></h6>
         <ul className="list-group my-2">
           {filteredTask.map((item) => (
             <li className="list-group-item my-1 " key={item.uuid}>
@@ -66,13 +66,13 @@ function TaskList({ taskProp, removeTask, editTask }) {
                   className="btn btn-sm  btn-primary me-1"
                   onClick={() => editTask(item.uuid)}
                 >
-                  Düzenle
+                  Edit
                 </button>
                 <button
                   className="btn btn-sm  btn-danger"
                   onClick={() => removeTask(item.uuid)}
                 >
-                  Sil
+                  Delete
                 </button>
               </div>
             </li>
