@@ -3,21 +3,44 @@ import { v4 as uuidv4 } from "uuid";
 import TaskList from "./taskShow";
 
 function TaskForm() {
-  const emptyTask = { task: "", priority: false };
+  const emptyTask = { task: "", priority: false, isDone: false };
 
   const [formData, setFormData] = useState(emptyTask);
   const [tasks, setTasks] = useState([]);
+  const [taskChangeCount,setTaskChangeCount]=useState(0);
+
+  useEffect(()=>{
+    const localStorageTask=JSON.parse(localStorage.getItem("taskList"))
+    setTasks(localStorageTask ?? [])
+  },[])
+
+  useEffect(()=>{
+    if(taskChangeCount>0){
+      localStorage.setItem("taskList",JSON.stringify(tasks))
+    }
+  },[taskChangeCount])
+
+
+  function doneTask(uuid) {
+    const taskIndex = tasks.findIndex((item) => item.uuid === uuid);
+    const task = tasks[taskIndex];
+    const newTasks = tasks.slice();
+    newTasks[taskIndex] = task;
+    task.isDone=!task.isDone
+    setTasks(newTasks);
+    setTaskChangeCount(prev=>prev +1)
+  }
 
   function editTask(uuid) {
-    const task = tasks.find(item => item.uuid === uuid);
-
-    setFormData({...task, isEdited: true });
-    console.log(uuid)
+    const task = tasks.find((item) => item.uuid === uuid);
+    setFormData({ ...task, isEdited: true });
+    setTaskChangeCount(prev=>prev +1)
   }
 
   function removeTask(uuid) {
-    console.log(uuid);
     setTasks((prev) => prev.filter((item) => item.uuid !== uuid));
+    setTaskChangeCount(prev=>prev +1)
+
   }
 
   function handleInputChange(event) {
@@ -34,18 +57,17 @@ function TaskForm() {
 
   function handleFormSubmit(e) {
     e.preventDefault();
-    if(formData.isEdited){
-      const taskIndex = tasks.findIndex(item=>item.uuid===formData.uuid)
-      const newTasks=tasks.slice()
-      newTasks[taskIndex] = {...formData}
+    if (formData.isEdited) {
+      const taskIndex = tasks.findIndex((item) => item.uuid === formData.uuid);
+      const newTasks = tasks.slice();
+      newTasks[taskIndex] = { ...formData };
 
-      setTasks(newTasks)
-    }
-
-    else if (formData.task.length > 2) {
+      setTasks(newTasks);
+    } else if (formData.task.length > 2) {
       formData.uuid = uuidv4();
       setTasks((prev) => [formData, ...prev]);
     }
+    setTaskChangeCount(prev=>prev +1)
 
     setFormData(emptyTask);
     e.target.reset();
@@ -95,7 +117,12 @@ function TaskForm() {
       <br />
       <hr />
 
-      <TaskList taskProp={tasks} removeTask={removeTask} editTask={editTask} />
+      <TaskList
+        taskProp={tasks}
+        removeTask={removeTask}
+        editTask={editTask}
+        doneTask={doneTask}
+      />
     </>
   );
 }
